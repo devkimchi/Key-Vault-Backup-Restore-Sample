@@ -1,0 +1,105 @@
+$schema: https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#
+contentVersion: 1.0.0.0
+parameters:
+  name:
+    type: string
+    metadata:
+      description: Name of the Logic App.
+
+  locationCode:
+    type: string
+    metadata:
+      description: Location code where the resource is provisioned.
+
+  state:
+    type: string
+    metadata:
+      description: Value indicating whether the Logic App instance is enabled or not.
+    allowedValues:
+    - Enabled
+    - Disabled
+    defaultValue: Disabled
+
+  managedIdentityType:
+    type: string
+    metadata:
+      description: Vxalue indicating whether the Logic App instance is integrated with Azure AD or not.
+    allowedValues:
+    - SystemAssigned
+    - None
+    defaultValue: None
+
+  enableIntegrationAccount:
+    type: bool
+    metadata:
+      description: Value indicating whether the Logic App instance conects to Integration Account or not.
+    defaultValue: false
+  integrationAccountName:
+    type: string
+    metadata:
+      description: Name of the Integraion Account.
+
+  # ADMIN PARAMETERS - DO NOT TOUCH
+  locationLookup:
+    type: object
+    metadata:
+      description: The reference to lookup location - DO NOT TOUCH
+    defaultValue:
+      auc: australiacentral
+      aue: australiaeast
+      ause: australiasoutheast
+      jpe: japaneast
+      jpw: japanwest
+      krc: koreacentral
+      krs: koreasouth
+      ea: eastasia
+      sea: southeastasia
+
+variables:
+  # METADATA
+  location: "[if(contains(parameters('locationLookup'), parameters('locationCode')), parameters('locationLookup')[parameters('locationCode')], resourceGroup().location)]"
+
+  # RESOURCE SPECIFIC VARIABLES
+  logicApp:
+    name: "[parameters('name')]"
+    apiVersion: "[providers('Microsoft.Logic', 'workflows').apiVersions[0]]"
+    resourceId: "[resourceId('Microsoft.Logic/workflows', parameters('name'))]"
+    location: "[variables('location')]"
+    state: "[parameters('state')]"
+    identity:
+      type: "[parameters('managedIdentityType')]"
+    useIntegrationAccount: "[parameters('enableIntegrationAccount')]"
+
+  ingtegrationAccount:
+    id: "[resourceId('Microsoft.Logic/integrationAccounts', parameters('integrationAccountName'))]"
+
+  # TAGS
+  tags:
+    author: Justin Yoo
+    profile: https://twitter.com/justinchronicle
+    projectUrl: https://github.com/devkimchi/Key-Vault-Backup-Restore-Sample
+    repositoryUrl: https://github.com/devkimchi/Key-Vault-Backup-Restore-Sample
+    license: https://raw.githubusercontent.com/devkimchi/Key-Vault-Backup-Restore-Sample/master/LICENSE
+
+resources:
+- comments: "### RESOURCE - LOGIC APP ###"
+  type: Microsoft.Logic/workflows
+  apiVersion: "[variables('logicApp').apiVersion]"
+  name: "[variables('logicApp').name]"
+  location: "[variables('logicApp').location]"
+  tags: "[variables('tags')]"
+  identity:
+    type: "[variables('logicApp').identity.type]"
+  properties:
+    state: "[variables('logicApp').state]"
+    integrationAccount: "[if(equals(variables('logicApp').useIntegrationAccount, json('true')), variables('integrationAccount'), json('{}'))]"
+    parameters: {}
+    definition:
+      $schema: https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#
+      contentVersion: 1.0.0.0
+      parameters: {}
+      triggers: {}
+      actions: {}
+      outputs: {}
+
+outputs: {}

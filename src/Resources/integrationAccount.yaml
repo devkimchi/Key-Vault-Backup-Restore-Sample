@@ -1,0 +1,85 @@
+$schema: https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#
+contentVersion: 1.0.0.0
+parameters:
+  name:
+    type: string
+    metadata:
+      description: Name of the Integration Account.
+
+  locationCode:
+    type: string
+    metadata:
+      description: Location code where the resource is provisioned.
+
+  skuName:
+    type: string
+    metadata:
+      description: SKU value of the Integration Account instance.
+    allowedValues:
+    - Free
+    - Standard
+    - Premium
+    defaultValue: Free
+  state:
+    type: string
+    metadata:
+      description: Value indicating whether the Integration Account instance is enabled or not.
+    allowedValues:
+    - Enabled
+    - Disabled
+    defaultValue: Disabled
+
+  # ADMIN PARAMETERS - DO NOT TOUCH
+  locationLookup:
+    type: object
+    metadata:
+      description: The reference to lookup location - DO NOT TOUCH
+    defaultValue:
+      auc: australiacentral
+      aue: australiaeast
+      ause: australiasoutheast
+      jpe: japaneast
+      jpw: japanwest
+      krc: koreacentral
+      krs: koreasouth
+      ea: eastasia
+      sea: southeastasia
+
+variables:
+  # METADATA
+  location: "[if(contains(parameters('locationLookup'), parameters('locationCode')), parameters('locationLookup')[parameters('locationCode')], resourceGroup().location)]"
+
+  # RESOURCE SPECIFIC VARIABLES
+  integrationAccount:
+    name: "[parameters('name')]"
+    apiVersion: "[providers('Microsoft.Logic', 'integrationAccounts').apiVersions[0]]"
+    resourceId: "[resourceId('Microsoft.Logic/integrationAccounts', parameters('name'))]"
+    location: "[variables('location')]"
+    sku:
+      name: "[parameters('skuName')]"
+    state: "[parameters('state')]"
+
+  # TAGS
+  tags:
+    author: Justin Yoo
+    profile: https://twitter.com/justinchronicle
+    projectUrl: https://github.com/devkimchi/Key-Vault-Backup-Restore-Sample
+    repositoryUrl: https://github.com/devkimchi/Key-Vault-Backup-Restore-Sample
+    license: https://raw.githubusercontent.com/devkimchi/Key-Vault-Backup-Restore-Sample/master/LICENSE
+
+resources:
+- comments: "### RESOURCE: INTEGRATION ACCOUNT ###"
+  type: Microsoft.Logic/integrationAccounts
+  apiVersion: "[variables('integrationAccount').apiVersion]"
+  name: "[variables('integrationAccount').name]"
+  location: "[variables('integrationAccount').location]"
+  tags: "[variables('tags')]"
+  sku:
+    name: "[variables('integrationAccount').sku.name]"
+  properties:
+    state: "[variables('integrationAccount').state]"
+
+outputs:
+  integrationAccount:
+    type: string
+    value: "[reference(variables('integrationAccount').resourceId, variables('integrationAccount').apiVersion, 'Full').resourceId]"

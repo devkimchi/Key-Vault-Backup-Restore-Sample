@@ -9,6 +9,6 @@ Param(
 $directory = $RootDirectory
 $yarmpath = "$RootDirectory\bin\yarm-cli\yarm.cmd"
 
-Get-ChildItem -Path $directory\samples -Recurse -Include *.yaml | ForEach-Object {
+Get-ChildItem -Path $directory\src -Recurse -Include *.yaml | ForEach-Object {
     & $yarmpath -i $_.FullName -o $($_.FullName).Replace(".yaml", ".json")
 }

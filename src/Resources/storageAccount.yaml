@@ -16,12 +16,28 @@ parameters:
     type: string
     metadata:
       description: SKU Name of the Storage Account.
+    allowedValues:
+    - Standard_LRS
+    - Standard_GRS
+    - Standard_ZRS
+    - Standard_RGRS
     defaultValue: Standard_LRS
   skuTier:
     type: string
     metadata:
       description: SKU family of the Storage Account.
     defaultValue: Standard
+
+  blobServiceName:
+    type: string
+    metadata:
+      description: Name of the blob service.
+    defaultValue: default
+  blobContainer:
+    type: string
+    metadata:
+      description: Name of the blob containers.
+    defaultValue: backups
 
   # ADMIN PARAMETERS - DO NOT TOUCH
   locationLookup:
@@ -46,12 +62,18 @@ variables:
   # RESOURCE SPECIFIC VARIABLES
   storageAccount:
     name: "[parameters('name')]"
-    apiVersion: "[providers('Microsoft.Storage', 'storageAccount').apiVersions[0]]"
-    resourceId: "[resourceId('Microsoft.Storage/storageAccount', parameters('name'))]"
+    apiVersion: "[providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]]"
+    resourceId: "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
     location: "[variables('location')]"
     sku:
       name: "[parameters('skuName')]"
       tier: "[parameters('skuTier')]"
+    blob:
+      name: "[concat(parameters('name'), '/', parameters('blobServiceName'))]"
+      apiVersion: "[providers('Microsoft.Storage', 'storageAccounts/blobServices').apiVersions[0]]"
+      resourceId: "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('name'), parameters('blobServiceName'))]"
+      container:
+        name: "[parameters('blobContainer')]"
 
   # TAGS
   tags:
@@ -67,17 +89,38 @@ resources:
   apiVersion: "[variables('storageAccount').apiVersion]"
   name: "[variables('storageAccount').name]"
   location: "[variables('storageAccount').location]"
+  kind: StorageV2
   tags: "[variables('tags')]"
   sku:
     name: "[variables('storageAccount').sku.name]"
     tier: "[variables('storageAccount').sku.tier]"
-  kind: StorageV2
   properties:
     supportsHttpsTrafficOnly: true
     encryption:
+      keySource: Microsoft.Storage
       services:
         blob:
           enabled: true
-      keySource: Microsoft.Storage
+        file:
+          enabled: true
+
+- comments: '### RESOURCE - STORAGE ACCOUNT - BLOB SERVICE ###'
+  apiVersion: "[variables('storageAccount').blob.apiVersion]"
+  type: Microsoft.Storage/storageAccounts/blobServices
+  name: "[variables('storageAccount').blob.name]"
+  dependsOn:
+  - "[variables('storageAccount').resourceId]"
+  properties:
+    cors:
+      corsRules: []
+      deleteRetentionPolicy:
+        enabled: false
+
+- comments: '### RESOURCE - STORAGE ACCOUNT - BLOB SERVICE - BLOB CONTAINER ###'
+  apiVersion: "[variables('storageAccount').blob.apiVersion]"
+  type: Microsoft.Storage/storageAccounts/blobServices/containers
+  name: "[concat(variables('storageAccount').blob.name, '/', variables('storageAccount').blob.container.name)]"
+  dependsOn:
+  - "[variables('storageAccount').blob.resourceId]"
 
 outputs: {}

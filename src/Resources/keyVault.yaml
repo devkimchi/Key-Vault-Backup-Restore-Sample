@@ -42,14 +42,11 @@ parameters:
     metadata:
       description: Comma delimited list of access policies to Key Vault secrets.
     defaultValue: List,Get,Backup,Restore
-  servicePrincipalTenantId:
-    type: securestring
+
+  logicAppName:
+    type: string
     metadata:
-      description: Tenant Id of the service principal.
-  servicePrincipalObjectId:
-    type: securestring
-    metadata:
-      description: Object Id of the service principal.
+      description: Name of the Logic App.
 
   # ADMIN PARAMETERS - DO NOT TOUCH
   locationLookup:
@@ -77,7 +74,6 @@ variables:
     apiVersion: "[providers('Microsoft.KeyVault', 'vaults').apiVersions[0]]"
     resourceId: "[resourceId('Microsoft.KeyVault/vaults', parameters('name'))]"
     location: "[variables('location')]"
-    subscription: "[subscription()]"
     sku:
       name: "[parameters('skuName')]"
       family: "[parameters('skuFamily')]"
@@ -85,10 +81,11 @@ variables:
     enabledForDiskEncryption: "[parameters('enabledForDiskEncryption')]"
     enabledForTemplateDeployment: "[parameters('enabledForTemplateDeployment')]"
     accessPolicies:
-      tenantId: "[parameters('servicePrincipalTenantId')]"
-      objectId: "[parameters('servicePrincipalObjectId')]"
       permissions:
         secrets: "[split(parameters('accessPoliciesForSecret'), ',')]"
+  logicApp:
+    apiVersion: "[providers('Microsoft.Logic', 'workflows').apiVersions[0]]"
+    resourceId: "[resourceId('Microsoft.Logic/workflows', parameters('logicAppName'))]"
 
   # TAGS
   tags:
@@ -109,13 +106,13 @@ resources:
     sku:
       family: "[variables('keyVault').sku.family]"
       name: "[variables('keyVault').sku.name]"
-    tenantId: "[variables('keyVault').subscription.tenantId]"
+    tenantId: "[subscription().tenantId]"
     enabledForDeployment: "[variables('keyVault').enabledForDeployment]"
     enabledForDiskEncryption: "[variables('keyVault').enabledForDiskEncryption]"
     enabledForTemplateDeployment: "[variables('keyVault').enabledForTemplateDeployment]"
     accessPolicies:
-    - tenantId: "[variables('keyVault').accessPolicies.tenantId]"
-      objectId: "[variables('keyVault').accessPolicies.objectId]"
+    - tenantId: "[reference(variables('logicApp').resourceId, variables('logicApp').apiVersion, 'Full').identity.tenantId]"
+      objectId: "[reference(variables('logicApp').resourceId, variables('logicApp').apiVersion, 'Full').identity.principalId]"
       permissions:
         secrets: "[variables('keyVault').accessPolicies.permissions.secrets]"
 

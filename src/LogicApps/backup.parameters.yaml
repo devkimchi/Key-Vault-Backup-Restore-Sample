@@ -1,0 +1,10 @@
+LogicAppState: Enabled
+
+AzureBlobApiId: "[AZURE_BLOB_API_ID]"
+AzureBlobApiConnectionId: "[AZURE_BLOB_API_CONNECTION_ID]"
+AzureBlobApiConnectionName: "[AZURE_BLOB_API_CONNECTION_NAME]"
+AzureBlobContainerName: "[AZURE_BLOB_CONTAINER_NAME]"
+
+KeyVaultBaseUrl: "[KEY_VAULT_BASE_URL]"
+KeyVaultApiVersion: '7.0'
+KeyVaultAudienceUrl: https://vault.azure.net

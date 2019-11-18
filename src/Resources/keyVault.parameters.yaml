@@ -1,4 +1,4 @@
-$schema: https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#
+$schema: https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#
 contentVersion: 1.0.0.0
 parameters:
   name:
@@ -6,7 +6,5 @@ parameters:
   locationCode:
     value: "[LOCATION_CODE]"
 
-  servicePrincipalTenantId:
-    value: "[TENANT_ID]"
-  servicePrincipalObjectId:
-    value: "[OBJECT_ID]"
+  logicAppName:
+    value: "[LOGIC_APP_NAME]"

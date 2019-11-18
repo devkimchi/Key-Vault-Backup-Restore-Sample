@@ -1,4 +1,4 @@
-$schema: https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#
+$schema: https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#
 contentVersion: 1.0.0.0
 
 parameters:
@@ -45,9 +45,9 @@ variables:
     name: "[parameters('name')]"
     apiVersion: "[providers('Microsoft.Web', 'connections').apiVersions[0]]"
     resourceId: "[resourceId('Microsoft.Storage/storageAccount', parameters('name'))]"
-    location: "[parameters('location')]"
+    location: "[variables('location')]"
     azureblob:
-      id: "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('location'), '/managedApis/azureblob')]"
+      id: "[concat(subscription().id, '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/azureblob')]"
       name: "[parameters('name')]"
       displayName: "[parameters('name')]"
       accountName: "[variables('storageAccount').name]"
@@ -71,7 +71,7 @@ resources:
       id: "[variables('connection').azureblob.id]"
     displayName: "[variables('connection').azureblob.displayName]"
     parameterValues:
-      storageaccount: "[variables('connection').azureblob.accountName]"
-      sharedkey: "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name), variables('storageAccount').apiVersion).keys[0].value]"
+      accountName: "[variables('connection').azureblob.accountName]"
+      accessKey: "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name), variables('storageAccount').apiVersion).keys[0].value]"
 
 outputs: {}

@@ -1,0 +1,123 @@
+state: "{{LogicAppState}}"
+
+parameters:
+  $connections:
+    value:
+      azureblob:
+        id: "{{AzureBlobApiId}}"
+        connectionId: "{{AzureBlobApiConnectionId}}"
+        connectionName: "{{AzureBlobApiConnectionName}}"
+
+  keyVault:
+    value:
+      baseUrl: "{{KeyVaultBaseUrl}}"
+      apiVersion: "{{KeyVaultApiVersion}}"
+      audienceUrl: "{{KeyVaultAudienceUrl}}"
+
+  azureBlob:
+    value:
+      containerName: "{{AzureBlobContainerName}}"
+
+definition:
+  $schema: https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#
+  contentVersion: 1.0.0.0
+
+  parameters:
+    $connections:
+      type: object
+      defaultValue: {}
+    keyVault:
+      type: object
+      defaultValue: {}
+    azureBlob:
+      type: object
+      defaultValue: {}
+
+  triggers:
+    manual:
+      type: Request
+      kind: Http
+      inputs:
+        method: POST
+        schema: {}
+
+  actions:
+    Initialise_BackupItems:
+      type: InitializeVariable
+      runAfter: {}
+      inputs:
+        variables:
+        - type: Array
+          name: BackupItems
+          value: "@json('[]')"
+    List_Secrets:
+      type: Http
+      runAfter:
+        Initialise_BackupItems:
+        - Succeeded
+      inputs:
+        method: GET
+        uri: "@concat(parameters('keyVault')['baseUrl'], 'secrets')"
+        queries:
+          api-version: "@{parameters('keyVault')['apiVersion']}"
+        authentication:
+          audience: "@parameters('keyVault')['audienceUrl']"
+          type: ManagedServiceIdentity
+    Loop_Secrets:
+      type: Foreach
+      runAfter:
+        List_Secrets:
+        - Succeeded
+      foreach: "@body('List_Secrets')?['value']"
+      runtimeConfiguration:
+        concurrency:
+          repetitions: 50
+      actions:
+        Backup_Secret:
+          type: Http
+          runAfter: {}
+          inputs:
+            method: POST
+            uri: "@{items('Loop_Secrets')?['id']}/backup"
+            queries:
+              api-version: "@{parameters('keyVault')['apiVersion']}"
+            authentication:
+              audience: "@parameters('keyVault')['audienceUrl']"
+              type: ManagedServiceIdentity
+        Add_BackupItem:
+          type: AppendToArrayVariable
+          runAfter:
+            Backup_Secret:
+            - Succeeded
+          inputs:
+            name: BackupItems
+            value: "@body('Backup_Secret')"
+    Confirm_BackupItems:
+      type: Compose
+      runAfter:
+        Loop_Secrets:
+        - Succeeded
+      inputs: "@variables('BackupItems')"
+    Upload_BackupItems:
+      type: ApiConnection
+      runAfter:
+        Confirm_BackupItems:
+        - Succeeded
+      runtimeConfiguration:
+        contentTransfer:
+          transferMode: Chunked
+      inputs:
+        method: POST
+        host:
+          connection:
+            name: "@parameters('$connections')['azureblob']['connectionId']"
+        path: /datasets/default/files
+        headers:
+          Content-Type: application/json
+        queries:
+          folderPath: "@concat('/', parameters('azureBlob')['containerName'])"
+          name: "@{concat(utcNow('yyyyMMdd'), '.json')}"
+          queryParametersSingleEncoded: true
+        body: "@outputs('Confirm_BackupItems')"
+
+  outputs: {}

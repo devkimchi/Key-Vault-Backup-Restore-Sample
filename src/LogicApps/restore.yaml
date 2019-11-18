@@ -1,0 +1,158 @@
+state: "{{LogicAppState}}"
+
+parameters:
+  $connections:
+    value:
+      azureblob:
+        id: "{{AzureBlobApiId}}"
+        connectionId: "{{AzureBlobApiConnectionId}}"
+        connectionName: "{{AzureBlobApiConnectionName}}"
+
+  keyVault:
+    value:
+      baseUrl: "{{KeyVaultBaseUrl}}"
+      apiVersion: "{{KeyVaultApiVersion}}"
+      audienceUrl: "{{KeyVaultAudienceUrl}}"
+
+  azureBlob:
+    value:
+      containerName: "{{AzureBlobContainerName}}"
+
+definition:
+  $schema: https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#
+  contentVersion: 1.0.0.0
+  parameters:
+    $connections:
+      type: object
+      defaultValue: {}
+    keyVault:
+      type: object
+      defaultValue: {}
+    azureBlob:
+      type: object
+      defaultValue: {}
+
+  triggers:
+    manual:
+      type: Request
+      kind: Http
+      inputs:
+        method: POST
+        schema: {}
+
+  actions:
+    Initialise_Backup:
+      type: InitializeVariable
+      runAfter: {}
+      inputs:
+        variables:
+        - type: Object
+          name: Backup
+          value: "@json('{}')"
+
+    List_Backups:
+      type: ApiConnection
+      runAfter:
+        Initialise_Backup:
+        - Succeeded
+      inputs:
+        method: GET
+        host:
+          connection:
+            name: "@parameters('$connections')['azureblob']['connectionId']"
+        path: /datasets/default/foldersV2/@{encodeURIComponent(encodeURIComponent(parameters('azureBlob')['containerName']))}
+        queries:
+          nextPageMarker: ''
+          useFlatListing: false
+
+    Get_Latest_Backup:
+      type: JavaScriptCode
+      runAfter:
+        List_Backups:
+        - Succeeded
+      inputs:
+        code: >+
+          "use strict";
+
+          var items = workflowContext.actions.List_Backups.outputs.body.value;
+
+          var sorted = items.sort(function (a, b) {
+            var dateA = a.Name.replace('.json', '');
+            var dateB = b.Name.replace('.json', '');
+
+            if (dateA > dateB) {
+              return -1;
+            }
+
+            if (dateA < dateB) {
+              return 1;
+            }
+
+            return 0;
+          });
+
+          var result = sorted[0].Path;
+
+          return result;
+
+    Get_Backup:
+      type: ApiConnection
+      runAfter:
+        Get_Latest_Backup:
+        - Succeeded
+      inputs:
+        method: GET
+        host:
+          connection:
+            name: "@parameters('$connections')['azureblob']['connectionId']"
+        path: /datasets/default/GetFileContentByPath
+        queries:
+          inferContentType: true
+          path: "@{outputs('Get_Latest_Backup')?['body']}"
+          queryParametersSingleEncoded: true
+
+    Get_BackupItems:
+      type: Compose
+      runAfter:
+        Get_Backup:
+        - Succeeded
+      inputs: "@json(base64ToString(body('Get_Backup')?['$content']))"
+
+    Loop_BackupItems:
+      type: Foreach
+      runAfter:
+        Get_BackupItems:
+        - Succeeded
+      foreach: "@outputs('Get_BackupItems')"
+      runtimeConfiguration:
+        concurrency:
+          repetitions: 50
+      actions:
+        Restore_BackupItem:
+          type: Http
+          runAfter: {}
+          inputs:
+            method: POST
+            uri: "@concat(parameters('keyVault')['baseUrl'], 'secrets/restore')"
+            body: "@items('Loop_BackupItems')"
+            queries:
+              api-version: "@{parameters('keyVault')['apiVersion']}"
+            authentication:
+              audience: "@parameters('keyVault')['audienceUrl']"
+              type: ManagedServiceIdentity
+
+    List_Secrets:
+      type: Http
+      runAfter:
+        Loop_BackupItems:
+        - Succeeded
+      inputs:
+        method: GET
+        uri: "@concat(parameters('keyVault')['baseUrl'], 'secrets')"
+        queries:
+          api-version: "@{parameters('keyVault')['apiVersion']}"
+        authentication:
+          audience: "@parameters('keyVault')['audienceUrl']"
+          type: ManagedServiceIdentity
+
+  outputs: {}

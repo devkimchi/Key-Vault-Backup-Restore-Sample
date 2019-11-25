@@ -1,0 +1,48 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+using DevKimchi.Sample.Functions.Configs;
+
+using Microsoft.Azure.KeyVault.Models;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Newtonsoft.Json;
+
+namespace DevKimchi.Sample.Functions.Services
+{
+    /// <summary>
+    /// This represents the service entity to handle blobs.
+    /// </summary>
+    public class BlobService : IBlobService
+    {
+        private readonly AppSettings _settings;
+        private readonly CloudBlobClient _blob;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobService"/> class.
+        /// </summary>
+        /// <param name="settings"><see cref="AppSettings"/> instance.</param>
+        /// <param name="blob"><see cref="CloudBlobClient"/> instance.</param>
+        public BlobService(AppSettings settings, CloudBlobClient blob)
+        {
+            this._settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            this._blob = blob ?? throw new ArgumentNullException(nameof(blob));
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> UploadAsync(List<BackupSecretResult> results)
+        {
+            var serialised = JsonConvert.SerializeObject(results);
+
+            var containerName = this._settings.Blob.Container.Name;
+            var container = this._blob.GetContainerReference(containerName);
+            await container.CreateIfNotExistsAsync().ConfigureAwait(false);
+
+            var blobName = $"{DateTimeOffset.UtcNow.ToString("yyyyMMdd")}.json";
+            var blob = container.GetBlockBlobReference(blobName);
+            await blob.UploadTextAsync(serialised).ConfigureAwait(false);
+
+            return true;
+        }
+    }
+}

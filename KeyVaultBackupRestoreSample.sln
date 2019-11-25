@@ -1,0 +1,31 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4217265C-2371-4C63-9658-762997557255}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionApp", "src\FunctionApp\FunctionApp.csproj", "{E6FEC3D2-B2E9-4DDA-85BB-5A861F539866}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BC802958-654C-4491-90E7-CF3F31AAFB79}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+		global.json = global.json
+		LICENSE = LICENSE
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E6FEC3D2-B2E9-4DDA-85BB-5A861F539866}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6FEC3D2-B2E9-4DDA-85BB-5A861F539866}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6FEC3D2-B2E9-4DDA-85BB-5A861F539866}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6FEC3D2-B2E9-4DDA-85BB-5A861F539866}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E6FEC3D2-B2E9-4DDA-85BB-5A861F539866} = {4217265C-2371-4C63-9658-762997557255}
+	EndGlobalSection
+EndGlobal

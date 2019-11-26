@@ -44,5 +44,20 @@ namespace DevKimchi.Sample.Functions.Services
 
             return true;
         }
+
+        /// <inheritdoc />
+        public async Task<List<BackupSecretResult>> DownloadAsync(string timestamp)
+        {
+            var containerName = this._settings.Blob.Container.Name;
+            var container = this._blob.GetContainerReference(containerName);
+
+            var blobName = $"{timestamp}.json";
+            var blob = container.GetBlockBlobReference(blobName);
+            var downloaded = await blob.DownloadTextAsync().ConfigureAwait(false);
+
+            var results = JsonConvert.DeserializeObject<List<BackupSecretResult>>(downloaded);
+
+            return results;
+        }
     }
 }

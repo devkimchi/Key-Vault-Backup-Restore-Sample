@@ -15,5 +15,11 @@ namespace DevKimchi.Sample.Functions.Services
         /// </summary>
         /// <returns>Returns <c>True</c>, if upload successful; otherwise returns <c>False</c>.</returns>
         Task<bool> UploadAsync(List<BackupSecretResult> results);
+
+        /// <summary>
+        /// Downloads backup.
+        /// </summary>
+        /// <returns>Returns the list of <see cref="BackupSecretResult"/> instances.</returns>
+        Task<List<BackupSecretResult>> DownloadAsync(string timestamp);
     }
 }

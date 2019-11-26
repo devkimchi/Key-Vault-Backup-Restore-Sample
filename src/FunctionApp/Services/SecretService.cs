@@ -78,6 +78,30 @@ namespace DevKimchi.Sample.Functions.Services
             return results;
         }
 
+        public async Task<List<string>> RestoreSecretsAsync(string key, List<BackupSecretResult> secrets)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
+            if (secrets == null)
+            {
+                throw new ArgumentNullException(nameof(secrets));
+            }
+
+            var baseUri = this.GetKeyVaultInstance(key).BaseUri;
+
+            var results = new List<SecretBundle>();
+            foreach (var secret in secrets)
+            {
+                var result = await this._kv.RestoreSecretAsync(baseUri, secret.Value).ConfigureAwait(false);
+                results.Add(result);
+            }
+
+            return results.Select(p => p.SecretIdentifier.Name).ToList();
+        }
+
         private KeyVaultInstanceSettings GetKeyVaultInstance(string key)
         {
             var name = collection[key];

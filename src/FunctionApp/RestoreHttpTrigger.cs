@@ -37,7 +37,7 @@ namespace DevKimchi.Sample.Functions
         /// <param name="req"><see cref="HttpRequest"/> instance.</param>
         /// <param name="timestamp">Timestamp value in the format of "yyyyMMdd".</param>
         /// <param name="log"><see cref="ILogger"/> instance.</param>
-        /// <returns></returns>
+        /// <returns>Returns the list of secret names restored.</returns>
         [FunctionName(nameof(RestoreSecrets))]
         public async Task<IActionResult> RestoreSecrets(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "secrets/restore/{timestamp}")] HttpRequest req,

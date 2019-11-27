@@ -36,7 +36,7 @@ namespace DevKimchi.Sample.Functions
         /// </summary>
         /// <param name="req"><see cref="HttpRequest"/> instance.</param>
         /// <param name="log"><see cref="ILogger"/> instance.</param>
-        /// <returns></returns>
+        /// <returns>Returns the list of secrets backed up.</returns>
         [FunctionName(nameof(BackupSecrets))]
         public async Task<IActionResult> BackupSecrets(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "secrets/backup")] HttpRequest req,

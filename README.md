@@ -12,10 +12,14 @@ This provides sample codes to backup and restore an Azure Key Vault secrets thro
 ## Readings ##
 
 * 한국어:
+  * [애저 펑션을 이용해서 애저 키 저장소 시크릿을 백업/복원하기](https://blog.aliencube.org/ko/2019/11/27/backup-restore-key-vault-secrets-via-function-apps/)
+  * [애저 펑션에서 Managed Identity를 이용해 애저 키 저장소에 접근하기](https://blog.aliencube.org/ko/2019/01/03/accessing-key-vault-from-azure-functions-with-managed-identity/)
   * [로직 앱을 이용해서 애저 키 저장소 시크릿을 백업/복원하기](https://blog.aliencube.org/ko/2019/11/21/backup-restore-key-vault-secrets-via-logic-apps/)
   * [애저 로직앱에서 키 저장소로 직접 접근하기](https://blog.aliencube.org/ko/2018/10/24/accessing-key-vault-from-logic-apps-with-managed-identity/)
   * [로직 앱에서 인라인 스크립트를 이용해 배열의 가장 최근 값을 받아오기](https://blog.aliencube.org/ko/2019/11/14/getting-the-latest-array-item-with-inline-script-in-logic-app/)
 * English:
+  * [Backup & Restore Key Vault Secrets via Azure Functions](https://devkimchi.com/2019/11/27/backup-restore-key-vault-secrets-via-function-apps/)
+  * [Accessing Key Vault from Azure Functions with Managed Identity](https://devkimchi.com/2019/01/03/accessing-key-vault-from-azure-functions-with-managed-identity/)
   * [Backup & Restore Key Vault Secrets via Logic Apps](https://devkimchi.com/2019/11/21/backup-restore-key-vault-secrets-via-logic-apps/)
   * [Accessing Key Vault from Logic App with Managed Identity](https://devkimchi.com/2018/10/24/accessing-key-vault-from-logic-apps-with-managed-identity/)
   * [Getting the Latest Array Item with Inline Script in Logic App](https://devkimchi.com/2019/11/14/getting-the-latest-array-item-with-inline-script-in-logic-app/)

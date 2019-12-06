@@ -96,7 +96,7 @@ variables:
     license: https://raw.githubusercontent.com/devkimchi/Key-Vault-Backup-Restore-Sample/master/LICENSE
 
 resources:
-- comments: "### RESOURCE: KEY VAULT ###"
+- comments: "### RESOURCE - KEY VAULT ###"
   type: Microsoft.KeyVault/vaults
   apiVersion: "[variables('keyVault').apiVersion]"
   name: "[variables('keyVault').name]"

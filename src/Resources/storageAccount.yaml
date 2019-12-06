@@ -84,7 +84,7 @@ variables:
     license: https://raw.githubusercontent.com/devkimchi/Key-Vault-Backup-Restore-Sample/master/LICENSE
 
 resources:
-- comments: "### RESOURCE: STORAGE ACCOUNT ###"
+- comments: "### RESOURCE - STORAGE ACCOUNT ###"
   type: Microsoft.Storage/storageAccounts
   apiVersion: "[variables('storageAccount').apiVersion]"
   name: "[variables('storageAccount').name]"

@@ -6,9 +6,9 @@
 
     "KeyVault__Endpoints__Backup": "backup",
     "KeyVault__Endpoints__Restore": "restore",
-    "KeyVault__Instances__Backup__BaseUri": "https://kvbackup.vault.azure.net/",
-    "KeyVault__Instances__Restore__BaseUri": "https://kvrestore.vault.azure.net/",
+    "KeyVault__Instances__Backup__BaseUri": "https://<KEYVAULT_NAME_FOR_BACKUP>.vault.azure.net/",
+    "KeyVault__Instances__Restore__BaseUri": "https://<KEYVAULT_NAME_FOR_RESTORE>.vault.azure.net/",
 
-    "Blob__Container__Name": "backups"
+    "Blob__Container__Name": "<BLOB_CONTAINER_NAME>"
   }
 }

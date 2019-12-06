@@ -1,33 +1,25 @@
 $schema: https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#
 contentVersion: 1.0.0.0
+
 parameters:
   name:
     type: string
     metadata:
-      description: Name of the Integration Account.
+      description: Name of the Application Insights.
 
   locationCode:
     type: string
     metadata:
       description: Location code where the resource is provisioned.
 
-  skuName:
+  kind:
     type: string
     metadata:
-      description: SKU value of the Integration Account instance.
+      description: The type of Application Insights instance.
     allowedValues:
-    - Free
-    - Standard
-    - Premium
-    defaultValue: Free
-  state:
-    type: string
-    metadata:
-      description: Value indicating whether the Integration Account instance is enabled or not.
-    allowedValues:
-    - Enabled
-    - Disabled
-    defaultValue: Disabled
+    - other
+    - web
+    defaultValue: web
 
   # ADMIN PARAMETERS - DO NOT TOUCH
   locationLookup:
@@ -50,14 +42,11 @@ variables:
   location: "[if(contains(parameters('locationLookup'), parameters('locationCode')), parameters('locationLookup')[parameters('locationCode')], resourceGroup().location)]"
 
   # RESOURCE SPECIFIC VARIABLES
-  integrationAccount:
+  appInsights:
     name: "[parameters('name')]"
-    apiVersion: "[providers('Microsoft.Logic', 'integrationAccounts').apiVersions[0]]"
-    resourceId: "[resourceId('Microsoft.Logic/integrationAccounts', parameters('name'))]"
+    apiVersion: "[providers('Microsoft.Insights', 'components').apiVersions[0]]"
     location: "[variables('location')]"
-    sku:
-      name: "[parameters('skuName')]"
-    state: "[parameters('state')]"
+    kind: "[parameters('kind')]"
 
   # TAGS
   tags:
@@ -68,18 +57,14 @@ variables:
     license: https://raw.githubusercontent.com/devkimchi/Key-Vault-Backup-Restore-Sample/master/LICENSE
 
 resources:
-- comments: "### RESOURCE - INTEGRATION ACCOUNT ###"
-  type: Microsoft.Logic/integrationAccounts
-  apiVersion: "[variables('integrationAccount').apiVersion]"
-  name: "[variables('integrationAccount').name]"
-  location: "[variables('integrationAccount').location]"
+- comments: "### RESOURCE - APPLICATION INSIGHTS ###"
+  type: Microsoft.Insights/components
+  apiVersion: "[variables('appInsights').apiVersion]"
+  name: "[variables('appInsights').name]"
+  location: "[variables('appInsights').location]"
+  kind: "[variables('appInsights').kind]"
   tags: "[variables('tags')]"
-  sku:
-    name: "[variables('integrationAccount').sku.name]"
   properties:
-    state: "[variables('integrationAccount').state]"
+    applicationId: "[variables('appInsights').name]"
 
-outputs:
-  integrationAccount:
-    type: string
-    value: "[reference(variables('integrationAccount').resourceId, variables('integrationAccount').apiVersion, 'Full').resourceId]"
+outputs: {}

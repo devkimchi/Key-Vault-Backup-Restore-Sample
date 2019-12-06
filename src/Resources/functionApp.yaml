@@ -104,10 +104,10 @@ variables:
     location: "[variables('location')]"
     kind: "[parameters('kind')]"
     settings:
-      secretStorageType: "[parameters('functionAppSecretStorageType')]"
-      extensionVersion: "[parameters('functionAppExtensionVersion')]"
-      editMode: "[parameters('functionAppEditMode')]"
-      workerRuntime: "[parameters('functionAppWorkerRuntime')]"
+      secretStorageType: "[parameters('secretStorageType')]"
+      extensionVersion: "[parameters('extensionVersion')]"
+      editMode: "[parameters('editMode')]"
+      workerRuntime: "[parameters('workerRuntime')]"
 
   # TAGS
   tags:

@@ -1,0 +1,119 @@
+$schema: https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#
+contentVersion: 1.0.0.0
+
+parameters:
+  name:
+    type: string
+    metadata:
+      description: Name of the Key Vault.
+
+  locationCode:
+    type: string
+    metadata:
+      description: Location code where the resource is provisioned.
+
+  skuName:
+    type: string
+    metadata:
+      description: SKU Name of the Key Vault.
+    defaultValue: Standard
+  skuFamily:
+    type: string
+    metadata:
+      description: SKU family of the Key Vault.
+    defaultValue: A
+  enabledForDeployment:
+    type: bool
+    metadata:
+      description: Value indicating whether to enable Key Vault for VM deployment or not.
+    defaultValue: false
+  enabledForDiskEncryption:
+    type: bool
+    metadata:
+      description: Value indicating whether to enable Key Vault for disk encryption or not.
+    defaultValue: false
+  enabledForTemplateDeployment:
+    type: bool
+    metadata:
+      description: Value indicating whether to enable Key Vault for template deployment or not.
+    defaultValue: false
+  accessPoliciesForSecret:
+    type: string
+    metadata:
+      description: Comma delimited list of access policies to Key Vault secrets.
+    defaultValue: List,Get,Backup,Restore
+
+  functionAppName:
+    type: string
+    metadata:
+      description: Name of the Function App.
+
+  # ADMIN PARAMETERS - DO NOT TOUCH
+  locationLookup:
+    type: object
+    metadata:
+      description: The reference to lookup location - DO NOT TOUCH
+    defaultValue:
+      auc: australiacentral
+      aue: australiaeast
+      ause: australiasoutheast
+      jpe: japaneast
+      jpw: japanwest
+      krc: koreacentral
+      krs: koreasouth
+      ea: eastasia
+      sea: southeastasia
+
+variables:
+  # METADATA
+  location: "[if(contains(parameters('locationLookup'), parameters('locationCode')), parameters('locationLookup')[parameters('locationCode')], resourceGroup().location)]"
+
+  # RESOURCE SPECIFIC VARIABLES
+  keyVault:
+    name: "[parameters('name')]"
+    apiVersion: "[providers('Microsoft.KeyVault', 'vaults').apiVersions[0]]"
+    resourceId: "[resourceId('Microsoft.KeyVault/vaults', parameters('name'))]"
+    location: "[variables('location')]"
+    sku:
+      name: "[parameters('skuName')]"
+      family: "[parameters('skuFamily')]"
+    enabledForDeployment: "[parameters('enabledForDeployment')]"
+    enabledForDiskEncryption: "[parameters('enabledForDiskEncryption')]"
+    enabledForTemplateDeployment: "[parameters('enabledForTemplateDeployment')]"
+    accessPolicies:
+      permissions:
+        secrets: "[split(parameters('accessPoliciesForSecret'), ',')]"
+  functionApp:
+    apiVersion: "[providers('Microsoft.Web', 'sites').apiVersions[0]]"
+    resourceId: "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+
+  # TAGS
+  tags:
+    author: Justin Yoo
+    profile: https://twitter.com/justinchronicle
+    projectUrl: https://github.com/devkimchi/Key-Vault-Backup-Restore-Sample
+    repositoryUrl: https://github.com/devkimchi/Key-Vault-Backup-Restore-Sample
+    license: https://raw.githubusercontent.com/devkimchi/Key-Vault-Backup-Restore-Sample/master/LICENSE
+
+resources:
+- comments: "### RESOURCE - KEY VAULT ###"
+  type: Microsoft.KeyVault/vaults
+  apiVersion: "[variables('keyVault').apiVersion]"
+  name: "[variables('keyVault').name]"
+  location: "[variables('keyVault').location]"
+  tags: "[variables('tags')]"
+  properties:
+    sku:
+      family: "[variables('keyVault').sku.family]"
+      name: "[variables('keyVault').sku.name]"
+    tenantId: "[subscription().tenantId]"
+    enabledForDeployment: "[variables('keyVault').enabledForDeployment]"
+    enabledForDiskEncryption: "[variables('keyVault').enabledForDiskEncryption]"
+    enabledForTemplateDeployment: "[variables('keyVault').enabledForTemplateDeployment]"
+    accessPolicies:
+    - tenantId: "[reference(variables('functionApp').resourceId, variables('functionApp').apiVersion, 'Full').identity.tenantId]"
+      objectId: "[reference(variables('functionApp').resourceId, variables('functionApp').apiVersion, 'Full').identity.principalId]"
+      permissions:
+        secrets: "[variables('keyVault').accessPolicies.permissions.secrets]"
+
+outputs: {}

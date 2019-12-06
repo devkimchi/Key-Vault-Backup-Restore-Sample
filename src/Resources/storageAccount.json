@@ -96,7 +96,7 @@
   },
   "resources": [
     {
-      "comments": "### RESOURCE: STORAGE ACCOUNT ###",
+      "comments": "### RESOURCE - STORAGE ACCOUNT ###",
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "[variables('storageAccount').apiVersion]",
       "name": "[variables('storageAccount').name]",

@@ -89,6 +89,41 @@
         "ea": "eastasia",
         "sea": "southeastasia"
       }
+    },
+    "author": {
+      "type": "string",
+      "metadata": {
+        "description": "Author in tags"
+      },
+      "defaultValue": "Justin Yoo"
+    },
+    "profile": {
+      "type": "string",
+      "metadata": {
+        "description": "Profile in tags"
+      },
+      "defaultValue": "https://twitter.com/justinchronicle"
+    },
+    "projectUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Project URL in tags"
+      },
+      "defaultValue": "https://github.com/devkimchi/Key-Vault-Backup-Restore-Sample"
+    },
+    "repositoryUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Repository URL in tags"
+      },
+      "defaultValue": "https://github.com/devkimchi/Key-Vault-Backup-Restore-Sample"
+    },
+    "license": {
+      "type": "string",
+      "metadata": {
+        "description": "License in tags"
+      },
+      "defaultValue": "https://raw.githubusercontent.com/devkimchi/Key-Vault-Backup-Restore-Sample/master/LICENSE"
     }
   },
   "variables": {
@@ -107,11 +142,11 @@
       }
     },
     "tags": {
-      "author": "Justin Yoo",
-      "profile": "https://twitter.com/justinchronicle",
-      "projectUrl": "https://github.com/devkimchi/Key-Vault-Backup-Restore-Sample",
-      "repositoryUrl": "https://github.com/devkimchi/Key-Vault-Backup-Restore-Sample",
-      "license": "https://raw.githubusercontent.com/devkimchi/Key-Vault-Backup-Restore-Sample/master/LICENSE"
+      "author": "[parameters('author')]",
+      "profile": "[parameters('profile')]",
+      "projectUrl": "[parameters('projectUrl')]",
+      "repositoryUrl": "[parameters('repositoryUrl')]",
+      "license": "[parameters('license')]"
     }
   },
   "resources": [
